@@ -1,7 +1,7 @@
 
 from tokens import dir, typ, unit, states
 from itertools import product
-print(dir)
+
 def tokenize(in_seq):
     seq = []
     tok = []
@@ -42,10 +42,10 @@ def tokenize(in_seq):
     for i in in_seq:
         tokens = []
         j = i.strip().upper()
-        if j in ('', '.', ','):
+        if j in ('', ','):
             pass
         else:
-            seq.append(i)
+            seq.append(i.strip())
             if j in states:
                 tokens.append('ST')
             if j in dir:
@@ -54,18 +54,19 @@ def tokenize(in_seq):
                 tokens.append('TYP')
             if j in unit:
                 tokens.append('UNIT')
-            if j.isnumeric():
+            if j.isdigit():
                 tokens.append('HN')
+                tokens.append('NUM')
                 if counter-1 > 0:
                     if 'UNIT' in tok[counter-1]:
                         tokens.append('WS')
-                else:
-                    tokens.append('NUM')
-            if j.isalpha():
+            elif j.isalpha():
                 if counter - 1 > 0:
                     if 'UNIT' in tok[counter-1]:
                         tokens.append('WS')
-                    elif len(j) == 1:
+                    elif 'NUM' in tok[counter-1] and j in ('ST', 'ND', 'RD', 'TH'):
+                        tokens.append('CARD')
+                    if len(j) == 1:
                         tokens.append('CHAR')
                     else:
                         tokens.append('STR')
@@ -73,7 +74,9 @@ def tokenize(in_seq):
                     tokens.append('CHAR')
                 else:
                     tokens.append('STR')
-            if j.isalnum() is False:
+            elif j.isalnum():
+                tokens.append('ALNUM')
+            else:
                 if '-' in j:
                     tokens.append('HYP')
                 elif '/' in j:
@@ -86,7 +89,12 @@ def tokenize(in_seq):
                 elif '.' in j:
                     split = [i.isalpha() for i in j.split('.')]
                     if False in split:
-                        tokens.append('STR')
+                        try:
+                            float(i)
+                            tokens.append('HN')
+                            tokens.append('DEC')
+                        except:
+                            tokens.append('STR')
                     else:
                         tokens.append('HN')
                         tokens.append('DEC')
@@ -101,11 +109,12 @@ def tokenize(in_seq):
 
 if __name__ == '__main__':
     import parse
-    a = parse.sequence('101 1 North Avenue A APT A')
-    print(a)
+    a = parse.sequence('1120 North 27th Street')[-1]
+    print(1, a)
     seq, tok, iter = tokenize(a)
-    print(seq)
-    print(tok)
+    print(2, seq)
+    print(3, tok)
+    print(4)
     for i in iter:
         print(i)
 
