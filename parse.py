@@ -1,19 +1,25 @@
 def sequence(in_str):
     char = [i for i in in_str]
-    split = []
+    split = in_str.split(' ')
     numbers = []
     alphas = []
     separators = []
+    others = []
     pre = None
     seq = []
+    map = []
     for n in char:
         cur = None
         if n.isdigit():
             cur = 'D'
-        if n.isalpha():
+        elif n.isalpha():
             cur = 'A'
-        if not n.isalpha() and not n.isdigit():
+        elif n.isspace():
+            cur = 'W'
+        elif n in ('-', '/', '\\', '.'):
             cur = 'S'
+        else:
+            cur = 'O'
         if pre is None:
             seq.append(n)
         elif cur == pre:
@@ -23,16 +29,18 @@ def sequence(in_str):
                 numbers.append(''.join(seq))
             elif pre == 'A':
                 alphas.append(''.join(seq))
-            elif pre == 'S':
+            elif pre in ('S', 'W'):
                 separators.append(''.join(seq))
+            elif pre == 'O':
+                others.append(''.join(seq))
             else:
                 if debug:
                     print('Unhandled character encountered')
-            split.append(''.join(filter(None, seq)))
+            map.append(''.join(filter(None, seq)))
             seq = [n]
         pre = cur
 
-    split.append(''.join(filter(None, seq)))
+    map.append(''.join(filter(None, seq)))
     if cur == 'D':
         numbers.append(''.join(seq))
     elif cur == 'A':
@@ -45,8 +53,9 @@ def sequence(in_str):
     #    if debug:
     #        print('Latest\nSplit: {}\nNmbrs: {}\nAlpha: {}\nSeps: {}'.format(split, numbers, alphas, separators))
     #    print('TEST',split, numbers, alphas, separators)
-    return split
+    return split, alphas, numbers, separators, others, map
 
 
 if __name__ == '__main__':
-    print(sequence('101A Main Street'))
+    for i in sequence('509 V E S Road'):
+        print(i)
